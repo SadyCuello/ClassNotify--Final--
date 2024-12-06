@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">classnotify</string>
+    <string name="default_notificacion_channel_id">translatable="false">fcm_default_channel</string>
+    <string name="default_web_client_id">352247032842-03fc90qbehgiqlnhnn0qlo3ledgahqgf.apps.googleusercontent.com</string>
+</resources>

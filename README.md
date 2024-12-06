@@ -1,0 +1,9 @@
+El objetivo principal de este proyecto es desarrollar una aplicación móvil integral y eficiente, denominada ClassNotify, que facilite la administración y comunicación académica entre los administradores de una institución educativa y sus estudiantes. La aplicación permitirá a los administradores gestionar el catálogo de materias, adjuntar documentos relevantes y publicar anuncios importantes. Al mismo tiempo, proporcionará a los estudiantes una plataforma para recibir notificaciones oportunas y acceder a la información de sus materias de manera fácil y rápida. Objetivos Específicos
+
+Gestión del Catálogo de Materias: o Permitir a los administradores registrar nuevas materias en el catálogo. o Facilitar la actualización y eliminación de materiales existentes. o Adjuntar documentos, como el plan de clases, a cada materia para que los estudiantes puedan acceder a información detallada y estructurada.
+
+Publicación de Anuncios: o Habilitar a los administradores para crear y publicar anuncios importantes relacionados con eventos académicos, fechas de solicitudes, plazos de inscripción, y otros avisos relevantes. o Enviar notificaciones automáticas a los estudiantes para asegurar que estén al tanto de los anuncios importantes en tiempo real.
+
+Interacción Estudiante-Administrador: o Proporcionar a los estudiantes una interfaz amigable y accesible para consultar el catálogo de materias, incluyendo detalles y documentos adjuntos. o Permitir a los estudiantes recibir y visualizar anuncios y notificaciones de manera eficiente.
+
+Notificaciones y Recordatorios: o Implementar un sistema de notificaciones push para alertar a los estudiantes sobre nuevos anuncios y actualizaciones en el catálogo de materias. o Incluir funcionalidades de recordatorios para eventos importantes como solicitudes, fechas de retiro y otros plazos críticos.

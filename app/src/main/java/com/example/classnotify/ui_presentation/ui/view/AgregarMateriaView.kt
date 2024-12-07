@@ -1,13 +1,12 @@
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
 import android.util.Base64
 import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -28,13 +27,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.classnotify.domain.models.Materia
-
-import com.example.classnotify.domain.viewModels.MateriaViewModel
 import com.example.classnotify.ui_presentation.ui.view.PDFViewer
+import com.example.classnotify.domain.viewModels.MateriaViewModel
+import com.example.classnotify.ui_presentation.ui.theme.RedColor
+import com.example.classnotify.ui_presentation.ui.theme.WhiteColor
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AgregarMateriaView(
@@ -106,7 +105,6 @@ fun AgregarMateriaView(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ContentAgregarMateriaView(
@@ -250,9 +248,12 @@ fun ContentAgregarMateriaView(
             modifier = Modifier
                 .padding(horizontal = 30.dp)
                 .padding(bottom = 15.dp)
+                .background(Color.White),
         ) {
             TextField(
-                modifier = Modifier.menuAnchor(),
+                modifier = Modifier
+                    .menuAnchor()
+                    .background(Color.White),
                 readOnly = true,
                 value = horarioSeleccionado,
                 onValueChange = {},
@@ -267,7 +268,7 @@ fun ContentAgregarMateriaView(
                 horarios.forEach { selectionOption ->
                     DropdownMenuItem(
                         text = { Text(selectionOption) },
-
+                        modifier = Modifier.background(Color.White), // Set background color to white
                         onClick = {
                             horarioSeleccionado = selectionOption
                             showHorario = false
@@ -276,7 +277,6 @@ fun ContentAgregarMateriaView(
                 }
             }
         }
-        Spacer(modifier = Modifier.weight(1f))
 
         Button(
             onClick = {
@@ -304,7 +304,7 @@ fun ContentAgregarMateriaView(
                 }
             },
             colors = ButtonDefaults.buttonColors(containerColor = Color.Red) ,
-                 modifier = Modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 30.dp)
                 .padding(bottom = 15.dp)

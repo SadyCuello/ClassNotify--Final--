@@ -1,6 +1,7 @@
 package com.example.classnotify
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -22,7 +23,9 @@ import com.example.classnotify.domain.viewModels.AnuncioViewModel
 import com.example.classnotify.domain.viewModels.MateriaViewModel
 import com.example.classnotify.ui_presentation.ui.theme.ClassNotifyTheme
 import com.example.classnotify.ui_presentation.ui.view.NavManager
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : ComponentActivity() {
@@ -37,86 +40,112 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        FirebaseApp.initializeApp(this)
-        val firestore = FirebaseFirestore.getInstance()
-        requestStoragePermissions()
 
-        val classDataBase = Room.databaseBuilder(
-            applicationContext,
-            ClassDataBase::class.java,
-            "class_database"
-        ).build()
+        val isAuthenticated = checkIfUserIsAuthenticated()
 
-        val materiaDao = classDataBase.materiaDao()
-        val anuncioDataBase = Room.databaseBuilder(
-            applicationContext,
-            AnuncioDataBase::class.java,
-            "anuncio_database"
-        ).build()
+        if (!isAuthenticated) {
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
+        } else {
+            FirebaseApp.initializeApp(this)
+            val firestore = FirebaseFirestore.getInstance()
+            requestStoragePermissions()
 
-        val anuncioDao = anuncioDataBase.anuncioDao()
-        val anuncioRepository = AnuncioRepository(anuncioDao)
-        val firestoreRepository = FirestoreRepository(firestore)
+            val classDataBase = Room.databaseBuilder(
+                applicationContext,
+                ClassDataBase::class.java,
+                "class_database"
+            ).build()
 
-        anuncioViewModel = AnuncioViewModel(application, anuncioRepository, firestoreRepository)
-        materiaViewModel = MateriaViewModel(materiaDao, firestoreRepository)
+            val materiaDao = classDataBase.materiaDao()
+            val anuncioDataBase = Room.databaseBuilder(
+                applicationContext,
+                AnuncioDataBase::class.java,
+                "anuncio_database"
+            ).build()
 
-        setContent {
-            ClassNotifyTheme {
-                val navController = rememberNavController()
-                NavManager(
-                    navController = navController,
-                    materiaViewModel = materiaViewModel,
-                    anuncioViewModel = anuncioViewModel,
-                    userRole = UserRole.ESTUDIANTE
-                )
+            val anuncioDao = anuncioDataBase.anuncioDao()
+            val anuncioRepository = AnuncioRepository(anuncioDao)
+            val firestoreRepository = FirestoreRepository(firestore)
+
+            anuncioViewModel = AnuncioViewModel(application, anuncioRepository, firestoreRepository)
+            materiaViewModel = MateriaViewModel(materiaDao, firestoreRepository)
+
+            setContent {
+                ClassNotifyTheme {
+                    val navController = rememberNavController()
+                    NavManager(
+                        navController = navController,
+                        materiaViewModel = materiaViewModel,
+                        anuncioViewModel = anuncioViewModel,
+                        userRole = UserRole.ESTUDIANTE
+                    )
+                }
             }
         }
     }
+        private fun requestStoragePermissions() {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                    RC_REQUEST_CODE
+                )
+            }
+        }
 
-    private fun requestStoragePermissions() {
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED
+        override fun onRequestPermissionsResult(
+            requestCode: Int,
+            permissions: Array<out String>,
+            grantResults: IntArray
         ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                RC_REQUEST_CODE
-            )
-        }
-    }
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+            if (requestCode == RC_REQUEST_CODE) {
+                when {
+                    grantResults.isEmpty() -> Log.e(
+                        "MainActivity",
+                        "No se proporcionaron resultados"
+                    )
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == RC_REQUEST_CODE) {
-            when {
-                grantResults.isEmpty() -> Log.e(
-                    "MainActivity",
-                    "No se proporcionaron resultados"
-                )
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED -> {
+                        Toast.makeText(
+                            this,
+                            "Permiso de almacenamiento concedido",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
 
-                grantResults[0] == PackageManager.PERMISSION_GRANTED -> {
-                    Toast.makeText(
-                        this,
-                        "Permiso de almacenamiento concedido",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-
-                else -> {
-                    Toast.makeText(
-                        this,
-                        "Permiso de almacenamiento denegado. La aplicación puede no funcionar correctamente.",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    else -> {
+                        Toast.makeText(
+                            this,
+                            "Permiso de almacenamiento denegado. La aplicación puede no funcionar correctamente.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 }
             }
         }
+    private fun checkIfUserIsAuthenticated(): Boolean {
+        // Verificar autenticación con Firebase
+        val firebaseUser = FirebaseAuth.getInstance().currentUser
+        if (firebaseUser != null) {
+            // Si el usuario está autenticado en Firebase, retornamos true
+            return true
+        }
+
+        // Verificar estado de sesión de Google
+        val googleAccount = GoogleSignIn.getLastSignedInAccount(this)
+        if (googleAccount != null) {
+            // Si el usuario está autenticado en Google, retornamos true
+            return true
+        }
+
+        // Si no está autenticado ni con Firebase ni con Google, retornamos false
+        return false
     }
-}
+    }

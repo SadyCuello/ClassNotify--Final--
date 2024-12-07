@@ -17,6 +17,7 @@ sealed class LoginState {
     object Idle : LoginState() // Estado inicial
 }
 
+// ViewModel para login
 class LoginViewModel(private val loginUseCase: LoginUseCase) : ViewModel() {
 
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
@@ -27,10 +28,9 @@ class LoginViewModel(private val loginUseCase: LoginUseCase) : ViewModel() {
         viewModelScope.launch {
             try {
                 _loginState.value = LoginState.Loading
-                val result = loginUseCase.loginWithGoogle(idToken) as LoginResult
+                val result = loginUseCase.loginWithGoogle(idToken)
 
-                // Verificar si result contiene un usuario
-                val user = result.user // `result` es de tipo LoginResult
+                val user = result.user
                 if (user != null) {
                     val userRole = getUserRoleFromDatabase(user)
                     _loginState.value = LoginState.Success(user, userRole)
@@ -43,9 +43,7 @@ class LoginViewModel(private val loginUseCase: LoginUseCase) : ViewModel() {
         }
     }
 
-    // Método para obtener el rol del usuario desde la base de datos
     private fun getUserRoleFromDatabase(user: FirebaseUser): String {
-        // Lógica para obtener el rol desde Firebase, Firestore, o la base de datos
         return if (user.email?.contains("admin") == true) {
             "admin"
         } else {
@@ -53,7 +51,6 @@ class LoginViewModel(private val loginUseCase: LoginUseCase) : ViewModel() {
         }
     }
 
-    // Método de logout
     fun logout() {
         viewModelScope.launch {
             try {
@@ -65,4 +62,3 @@ class LoginViewModel(private val loginUseCase: LoginUseCase) : ViewModel() {
         }
     }
 }
-

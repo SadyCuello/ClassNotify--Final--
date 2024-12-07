@@ -6,23 +6,28 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.classnotify.R
 import com.example.classnotify.domain.models.Materia
 import com.example.classnotify.domain.viewModels.MateriaViewModel
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
+import androidx.compose.material3.TextFieldDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,8 +40,12 @@ fun EditarMateriaView(
     var materia by remember { mutableStateOf<Materia?>(null) }
 
     LaunchedEffect(idMateria) {
-
-        materia = viewModel.getMateriaById(idMateria)
+        try {
+            val materiaEncontrada = viewModel.obtenerMaterias(id = idMateria)
+            materia = materiaEncontrada
+        } catch (exception: Exception) {
+            Log.e("EditarMateriaView", "Error al obtener la materia: ${exception.message}")
+        }
     }
 
     val openFilePicker: ActivityResultLauncher<Array<String>> = rememberLauncherForActivityResult(
@@ -91,7 +100,6 @@ fun ContentEditarMateriaView(
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
-
     var adjuntoBase64 by remember { mutableStateOf(materia.adjunto ?: "") }
     var nombre by remember { mutableStateOf(materia.nombre) }
     var profesor by remember { mutableStateOf(materia.profesor) }
@@ -102,8 +110,8 @@ fun ContentEditarMateriaView(
     val horarios = listOf(
         "Selecciona un horario",
         "Lunes (6:00PM-8:00PM)",
-        "Miércoles (8:00PM/10:00PM)",
-        "Viernes (6:00PM/8:00PM)"
+        "Miércoles (8:00PM-10:00PM)",
+        "Viernes (6:00PM-8:00PM)"
     )
     var showHorario by remember { mutableStateOf(false) }
 
@@ -111,7 +119,9 @@ fun ContentEditarMateriaView(
         modifier = Modifier
             .padding(paddingValues)
             .padding(top = 30.dp)
-            .fillMaxSize(),
+            .verticalScroll(rememberScrollState())
+            .fillMaxSize()
+            .background(colorResource(id = R.color.backgroundColor)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutlinedTextField(
@@ -119,6 +129,11 @@ fun ContentEditarMateriaView(
             onValueChange = { nombre = it },
             label = { Text(text = "Nombre de la materia") },
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = colorResource(id = R.color.primaryColor),
+                unfocusedBorderColor = colorResource(id = R.color.primaryColor),
+                cursorColor = colorResource(id = R.color.primaryColor)
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 30.dp)
@@ -132,7 +147,12 @@ fun ContentEditarMateriaView(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 30.dp)
-                .padding(bottom = 15.dp)
+                .padding(bottom = 15.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = colorResource(id = R.color.primaryColor),
+                unfocusedBorderColor = colorResource(id = R.color.primaryColor),
+                cursorColor = colorResource(id = R.color.primaryColor)
+            )
         )
         OutlinedTextField(
             value = descripcion,
@@ -142,7 +162,12 @@ fun ContentEditarMateriaView(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 30.dp)
-                .padding(bottom = 15.dp)
+                .padding(bottom = 15.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = colorResource(id = R.color.primaryColor),
+                unfocusedBorderColor = colorResource(id = R.color.primaryColor),
+                cursorColor = colorResource(id = R.color.primaryColor)
+            )
         )
         OutlinedTextField(
             value = aula,
@@ -152,17 +177,22 @@ fun ContentEditarMateriaView(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 30.dp)
-                .padding(bottom = 15.dp)
+                .padding(bottom = 15.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = colorResource(id = R.color.primaryColor),
+                unfocusedBorderColor = colorResource(id = R.color.primaryColor),
+                cursorColor = colorResource(id = R.color.primaryColor)
+            )
         )
         Button(
             onClick = { openFilePicker.launch(arrayOf("*/*")) },
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Red) ,
+            colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.primaryColor)),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 30.dp)
                 .padding(bottom = 15.dp)
         ) {
-            Text(text = "Cargar archivo adjunto")
+            Text(text = "Cargar archivo adjunto", color = colorResource(id = R.color.white))
         }
         Text(
             text = if (adjuntoBase64.isNotEmpty()) "Archivo cargado" else "No se ha cargado ningún archivo",
@@ -178,14 +208,16 @@ fun ContentEditarMateriaView(
                 .padding(horizontal = 30.dp)
                 .padding(bottom = 15.dp)
         ) {
-          //  keyboardController?.hide()
             TextField(
                 modifier = Modifier.menuAnchor(),
                 value = horarioSeleccionado,
                 onValueChange = { },
                 readOnly = true,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showHorario) },
-                colors = ExposedDropdownMenuDefaults.textFieldColors()
+                colors = ExposedDropdownMenuDefaults.textFieldColors(
+                    focusedIndicatorColor = colorResource(id = R.color.primaryColor),
+                    cursorColor = colorResource(id = R.color.primaryColor)
+                )
             )
             ExposedDropdownMenu(
                 expanded = showHorario,
@@ -220,15 +252,18 @@ fun ContentEditarMateriaView(
                 }, onFailure = {
                     Log.e("EditarMateriaView", "Error al actualizar la materia: ${it.message}")
                 })
-                navController.popBackStack()
             },
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Red) ,
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 30.dp)
                 .padding(bottom = 15.dp)
         ) {
-            Text(text = "Actualizar materia")
+            Text(
+                text = "Actualizar materia",
+                color = colorResource(id = R.color.white),
+                style = MaterialTheme.typography.bodyLarge
+            )
         }
     }
 }

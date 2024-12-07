@@ -36,6 +36,14 @@ class FirestoreRepository(private val firestore: FirebaseFirestore) {
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { e -> onFailure(e) }
     }
+    suspend fun obtenerMateriaPorId(id: Long): Materia? {
+        val document = firestore.collection("materias").document(id.toString()).get().await()
+        return if (document.exists()) {
+            document.toObject(Materia::class.java)
+        } else {
+            null
+        }
+    }
 
     fun actualizarAnuncio(anuncio: Anuncio, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         firestore.collection("anuncios")

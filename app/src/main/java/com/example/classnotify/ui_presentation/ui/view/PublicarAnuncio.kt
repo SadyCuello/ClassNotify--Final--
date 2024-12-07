@@ -12,10 +12,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.classnotify.R
 import com.example.classnotify.domain.models.Anuncio
 import com.example.classnotify.domain.viewModels.AnuncioViewModel
 
@@ -99,7 +101,12 @@ fun ContentPublicarAnuncioView(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 30.dp)
-                .padding(bottom = 15.dp)
+                .padding(bottom = 15.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = colorResource(id = R.color.primaryColor),
+                unfocusedBorderColor = colorResource(id = R.color.primaryColor),
+                cursorColor = colorResource(id = R.color.primaryColor)
+            )
         )
         OutlinedTextField(
             value = descripcion,
@@ -109,7 +116,12 @@ fun ContentPublicarAnuncioView(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 30.dp)
-                .padding(bottom = 15.dp)
+                .padding(bottom = 15.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = colorResource(id = R.color.primaryColor),
+                unfocusedBorderColor = colorResource(id = R.color.primaryColor),
+                cursorColor = colorResource(id = R.color.primaryColor)
+            )
         )
 
         Spacer(modifier = Modifier.weight(1f))

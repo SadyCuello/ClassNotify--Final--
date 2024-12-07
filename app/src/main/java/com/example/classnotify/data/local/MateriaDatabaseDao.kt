@@ -25,5 +25,5 @@ interface MateriaDatabaseDao  {
     fun obtenerMateria(): Flow<List<Materia>>
 
     @Query("SELECT * FROM materia WHERE idMateria = :id")
-    suspend fun obtenerMateriaPorId(id: Long): Materia?
+    suspend fun obtenerMaterias(id: Long): Materia?
 }

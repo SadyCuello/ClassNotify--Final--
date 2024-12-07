@@ -1,5 +1,6 @@
 package com.example.classnotify.domain.viewModels
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -43,7 +44,17 @@ class MateriaViewModel (
             onFailure(e)
         }
     }
-
+    suspend fun obtenerMaterias(id: Long): Materia? {
+        return try {
+            val materia = dao.obtenerMaterias(id)
+            materia ?: firestoreRepository.obtenerMaterias().find { it.idMateria == id }?.also {
+                dao.registrarMateria(it)
+            }
+        } catch (e: Exception) {
+            Log.e("MateriaViewModel", "Error obteniendo materia: ${e.message}")
+            null
+        }
+    }
     fun actualizarMateria(materia: Materia, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) = viewModelScope.launch {
         try {
             dao.actualizarMateria(materia)
@@ -52,7 +63,6 @@ class MateriaViewModel (
             onFailure(e)
         }
     }
-
     fun borrarMateria(materia: Materia, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) = viewModelScope.launch {
         try {
             dao.borrarMateria(materia)
@@ -68,9 +78,5 @@ class MateriaViewModel (
 
     fun limpiarDatos() {
         _adjuntoBase64.value = null
-    }
-
-    suspend fun getMateriaById(id: Long): Materia? {
-        return dao.obtenerMateriaPorId(id)
     }
 }

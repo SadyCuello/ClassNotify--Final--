@@ -1,14 +1,13 @@
 package com.example.classnotify.data.Repository
 
+import com.example.classnotify.domain.models.LoginResult
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseUser
 
 interface AuthRepository {
 
-    // Cambiar para devolver Boolean
-    suspend fun loginWithEmail(email: String, password: String): Boolean
-    suspend fun signUpWithEmail(email: String, password: String): Boolean
-    suspend fun loginWithGoogle(idToken: String): Boolean
+    suspend fun loginWithGoogle(idToken: String): LoginResult
     fun getCurrentUser(): FirebaseUser?
     suspend fun logout(): Result<Unit>
 }
+

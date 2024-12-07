@@ -1,6 +1,7 @@
 package com.example.classnotify
 
 import LoginView
+import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -8,39 +9,49 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.classnotify.data.Repository.AuthRepositoryImpl
+import com.example.classnotify.domain.models.Routes
+import com.example.classnotify.domain.usecase.LoginUseCase
 import com.example.classnotify.domain.viewModels.LoginState
 import com.example.classnotify.domain.viewModels.LoginViewModel
+import com.example.classnotify.domain.viewModels.LoginViewModelFactory
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.collectLatest
 
 class LoginActivity : AppCompatActivity() {
 
-    private val loginViewModel: LoginViewModel by viewModels()
-    private lateinit var googleSignInClient: GoogleSignInClient
-
-    companion object {
-        const val RC_SIGN_IN = 9001
+    private val firebaseAuth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
+    private val authRepository by lazy { AuthRepositoryImpl(firebaseAuth) }
+    private val loginUseCase by lazy { LoginUseCase(authRepository) }
+    private val loginViewModel: LoginViewModel by viewModels {
+        LoginViewModelFactory(loginUseCase)
     }
+    private lateinit var googleSignInClient: GoogleSignInClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-
             LoginView(loginViewModel, ::onGoogleSignInClick)
         }
 
-        // Configuración de GoogleSignInClient
+        configureGoogleSignIn()
+        observeLoginState()
+    }
+
+    private fun configureGoogleSignIn() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id)) // Usa tu client ID de Firebase
+            .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
-        googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        observeLoginState() // Observa los cambios en el estado de login
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
+        observeLoginState()
     }
 
     private fun observeLoginState() {
@@ -48,33 +59,19 @@ class LoginActivity : AppCompatActivity() {
             loginViewModel.loginState.collectLatest { state ->
                 when (state) {
                     is LoginState.Loading -> {
-                        // Mostrar un CircularProgressIndicator si está cargando
                         Toast.makeText(this@LoginActivity, "Cargando...", Toast.LENGTH_SHORT).show()
                     }
 
                     is LoginState.Success -> {
-                        // Mostrar mensaje de bienvenida
                         Toast.makeText(
                             this@LoginActivity,
                             "Bienvenido, ${state.user.displayName}",
                             Toast.LENGTH_SHORT
                         ).show()
-
-                        // Redirigir según el rol del usuario
-                        if (state.userRole == "admin") {
-                            // Si es administrador, navega a la vista de administrador
-                            val intent = Intent(this@LoginActivity, AdminMainActivity::class.java)
-                            startActivity(intent)
-                        } else {
-                            // Si es estudiante, navega a la vista de estudiante
-                            val intent = Intent(this@LoginActivity, StudentMainActivity::class.java)
-                            startActivity(intent)
-                        }
-                        finish() // Finaliza la actividad de Login para que el usuario no regrese
+                        navigateTo(Routes.INICIO)
                     }
 
                     is LoginState.Error -> {
-                        // Mostrar mensaje de error si ocurre un fallo
                         Toast.makeText(
                             this@LoginActivity,
                             "Error: ${state.message}",
@@ -82,9 +79,7 @@ class LoginActivity : AppCompatActivity() {
                         ).show()
                     }
 
-                    is LoginState.Idle -> {
-                        // Estado inicial, sin acciones
-                    }
+                    LoginState.Idle -> Unit
                 }
             }
         }
@@ -98,15 +93,23 @@ class LoginActivity : AppCompatActivity() {
                     val account = task.getResult(ApiException::class.java)!!
                     loginViewModel.loginWithGoogle(account.idToken!!)
                 } catch (e: ApiException) {
-                    Toast.makeText(this, "Google sign in failed: ${e.message}", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(this, "Google sign in failed: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
+            } else {
+                Toast.makeText(this, "Sign-in canceled.", Toast.LENGTH_SHORT).show()
             }
         }
 
-    // Función que se llamará desde LoginView
-   internal fun onGoogleSignInClick() {
+    fun onGoogleSignInClick() {
         val signInIntent = googleSignInClient.signInIntent
         googleSignInLauncher.launch(signInIntent)
+    }
+
+    private fun navigateTo(destination: String) {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            putExtra("destination", destination)
+        }
+        startActivity(intent)
+        finish()
     }
 }

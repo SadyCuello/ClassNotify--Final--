@@ -1,5 +1,6 @@
 package com.example.classnotify.ui_presentation.ui.theme
 
+import androidx.compose.ui.graphics.Color
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -10,32 +11,37 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
+// Colores personalizados
+val RedColor = Color(0xFFD32F2F) // Rojo
+val WhiteColor = Color(0xFFFFFFFF) // Blanco
+val BlackColor = Color(0xFF000000) // Negro
+
+// Esquema de colores oscuro
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = RedColor,  // Rojo para el color primario
+    secondary = RedColor,  // Rojo para el color secundario
+    background = WhiteColor, // Fondo blanco en el tema oscuro
+    surface = WhiteColor, // Superficie blanca en el tema oscuro
+    onPrimary = WhiteColor, // Texto blanco sobre el color primario
+    onSecondary = WhiteColor, // Texto blanco sobre el color secundario
+    onBackground = BlackColor, // Texto negro sobre el fondo blanco
+    onSurface = BlackColor// Texto negro sobre la superficie blanca
 )
 
+// Esquema de colores claro
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    primary = RedColor, // Rojo como color primario
+    secondary = RedColor, // Rojo como color secundario
+    background = WhiteColor, // Fondo blanco en el tema claro
+    surface = WhiteColor, // Superficie blanca en el tema claro
+    onPrimary = WhiteColor, // Texto blanco sobre el color primario
+    onSecondary = WhiteColor, // Texto blanco sobre el color secundario
+    onBackground = BlackColor, // Texto negro sobre fondo blanco
+    onSurface = BlackColor // Texto negro sobre la superficie blanca
 )
-
 @Composable
 fun ClassNotifyTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
@@ -44,7 +50,6 @@ fun ClassNotifyTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
@@ -55,3 +60,4 @@ fun ClassNotifyTheme(
         content = content
     )
 }
+

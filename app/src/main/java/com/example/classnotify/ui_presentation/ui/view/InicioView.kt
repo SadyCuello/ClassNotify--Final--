@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -32,7 +33,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.classnotify.R
+import com.example.classnotify.domain.models.UserRole
 import com.example.classnotify.domain.viewModels.MateriaViewModel
 import com.example.classnotify.domain.viewModels.AnuncioViewModel
 import java.io.File
@@ -40,7 +43,11 @@ import java.io.FileOutputStream
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InicioView(navController: NavController, viewModel: MateriaViewModel, anuncioViewModel: AnuncioViewModel) {
+fun InicioView(
+    navController: NavHostController,
+    materiaViewModel: MateriaViewModel,
+    userRole: UserRole,
+    anuncioViewModel: AnuncioViewModel) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -100,7 +107,7 @@ fun InicioView(navController: NavController, viewModel: MateriaViewModel, anunci
                 Text("Ver Anuncios Publicados",color = Color.White)
             }
 
-            ContentInicioView(paddingValues, navController, viewModel)
+            ContentInicioView(paddingValues, navController, materiaViewModel)
         }
     }
 }
@@ -117,6 +124,7 @@ fun ContentInicioView(paddingValues: PaddingValues, navController: NavController
                 .padding(paddingValues),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
+
         ) {
             Text(
                 text = "No hay materias registradas. Haz clic en el botón + para agregar más.",
@@ -134,20 +142,41 @@ fun ContentInicioView(paddingValues: PaddingValues, navController: NavController
                     Card(
                         modifier = Modifier
                             .padding(8.dp)
-                            .fillMaxWidth(),
+                            .fillMaxWidth()
+                            .animateContentSize(),
                         shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors()
+                        colors = CardDefaults.cardColors(containerColor = Color.White)
                     ) {
                         Column(
                             modifier = Modifier
-                                .fillMaxSize()
+                                .fillMaxWidth()
                                 .padding(12.dp)
                         ) {
-                            Text(text = materia.nombre, modifier = Modifier.align(Alignment.CenterHorizontally))
-                            Text(text = materia.horario, modifier = Modifier.align(Alignment.CenterHorizontally))
-                            Text(text = materia.profesor, modifier = Modifier.align(Alignment.CenterHorizontally))
-                            Text(text = materia.descripcion, modifier = Modifier.align(Alignment.CenterHorizontally))
-                            Text(text = materia.aula, modifier = Modifier.align(Alignment.CenterHorizontally))
+                            Text(
+                                text = materia.nombre,
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
+                                style = MaterialTheme.typography.headlineSmall
+                            )
+                            Text(
+                                text = materia.horario,
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                text = materia.profesor,
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                text = materia.descripcion,
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                text = materia.aula,
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
 
                             materia.adjunto?.let { base64String ->
                                 val isPdf = base64String.startsWith("JVBERi0xLj") // Comprobación de PDF en Base64
@@ -181,7 +210,7 @@ fun ContentInicioView(paddingValues: PaddingValues, navController: NavController
                             }
 
                             Row(
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
                                 IconButton(

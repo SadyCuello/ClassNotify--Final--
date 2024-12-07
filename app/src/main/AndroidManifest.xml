@@ -20,7 +20,7 @@
             android:name=".LoginActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.ClassNotify">
+            android:theme="@style/Theme.AppCompat.Light">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -32,9 +32,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.ClassNotify">
-            <!-- Esta actividad no tiene un intent-filter de tipo MAIN ya que la actividad de Login la tiene -->
-        </activity>
+            android:theme="@style/Theme.ClassNotify" />
 
         <!-- Servicio para Firebase -->
         <service

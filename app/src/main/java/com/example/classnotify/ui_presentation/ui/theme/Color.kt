@@ -1,11 +1,15 @@
-package com.example.classnotify.ui_presentation.ui.theme
-
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.ui.graphics.Color
+import com.example.classnotify.ui_presentation.ui.theme.RedColor
+import com.example.classnotify.ui_presentation.ui.theme.WhiteColor
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
-
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+private val DarkColorScheme = darkColorScheme(
+    primary = RedColor,
+    secondary = RedColor,
+   background = WhiteColor, // Fondo blanco en tema oscuro
+   surface = WhiteColor, // Fondo blanco en superficie
+    onPrimary = WhiteColor,
+    onSecondary = WhiteColor,
+    onBackground = Color.White, // Texto negro sobre fondo blanco en modo oscuro
+    onSurface = Color.White // Texto negro sobre superficie blanca en modo oscuro
+)
